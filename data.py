@@ -23,8 +23,8 @@ MARKER = [PAD, STD, END, UNK]
 
 # Req 1-1-1. 데이터를 읽고 트레이닝 셋과 테스트 셋으로 분리
 def load_data():
-    Q=[]
-    A=[]
+    Q=[1]
+    A=[2]
     with open('data_in/ChatBotData.csv','r',encoding="utf-8") as f:
         for line in f.read().splitlines():
             Q.append(line.split(',')[0:1][0])
