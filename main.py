@@ -33,7 +33,7 @@ def main(self):
     train_q, train_a, test_q, test_a = data.load_data()
 
     # 훈련셋 인코딩 만드는 부분
-    train_input_enc = None
+    train_input_enc = data.enc_processing() # value,dictionary 두가지 매개변수를 전달해야 함
     # 훈련셋 디코딩 입력 부분
     train_input_dec = None
     # 훈련셋 디코딩 출력 부분
