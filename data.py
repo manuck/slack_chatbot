@@ -9,6 +9,7 @@ import numpy as np
 from configs import DEFINES
 
 
+FILTERS = "([~.,!?\"':;)(])"
 PAD = "<PAD>"
 STD = "<SOS>"
 END = "<END>"
@@ -20,6 +21,7 @@ END_INDEX = 2
 UNK_INDEX = 3
 
 MARKER = [PAD, STD, END, UNK]
+CHANGE_FILTER = re.compile(FILTERS)
 
 # Req 1-1-1. 데이터를 읽고 트레이닝 셋과 테스트 셋으로 분리
 def load_data():
@@ -53,30 +55,32 @@ def enc_processing(value, dictionary):
     value = prepro_noise_canceling(value)
 
     for seq in value:
-
+        seq = re.sub(CHANGE_FILTER, "", seq)
         # 하나의 seq에 index를 저장할 배열 초기화
         seq_index =[]
 
         for word in seq.split():
             if dictionary.get(word) is not None:
+                seq_index.extend([dictionary[word]])
                 # seq_index에 dictionary 안의 인덱스를 extend 한다
             else:
+                seq_index.extend([dictionary[UNK]])
                 # dictionary에 존재 하지 않는 다면 UNK 값을 extend 한다
 
         # 문장 제한 길이보다 길어질 경우 뒤에 토큰을 제거
         if len(sequence_index) > DEFINES.max_sequence_length:
-            sequence_index = None
+            seq_index = seq_index[:DEFINES.max_sequence_length]
 
         # seq의 길이를 저장
-        seq_len.append(None)
+        seq_len.append(len(seq_index))
 
         # DEFINES.max_sequence_length 길이보다 작은 경우 PAD 값을 추가 (padding)
-        seq_index += None
+        seq_index += (DEFINES.max_sequence_length - len(seq_index)) * [dictionary[PAD]]
 
         # 인덱스화 되어 있는 값은 seq_input_index에 추가
-        seq_input_index.append(None)
+        seq_input_index.append(seq_index)
 
-    return None
+    return np.asarray(seq_input_index), seq_len
 
 # Req 1-2-2. 디코더에 필요한 데이터 전 처리
 def dec_input_processing(value, dictionary):
