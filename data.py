@@ -25,25 +25,25 @@ CHANGE_FILTER = re.compile(FILTERS)
 
 # Req 1-1-1. 데이터를 읽고 트레이닝 셋과 테스트 셋으로 분리
 def load_data():
-    Q=[1,2]
-    A=[2]
-    with open('data_in/ChatBotData.csv','r',encoding="utf-8") as f:
-        for line in f.read().splitlines():
-            Q.append(line.split(',')[0:1][0])
-            A.append(line.split(',')[1:2][0])
-    train_q,train_a,test_q,test_a=train_test_split(Q,A)
+    data_df = pd.read_csv(DEFINES.data_path, header=0)
+    question, answer = list(data_df['Q']), list(data_df['A'])
+    train_q, test_q, train_a, test_a = train_test_split(question, answer, test_size=0.33,random_state=42)
     return train_q, train_a, test_q, test_a
 
 # Req 1-1-2. 텍스트 데이터에 정규화를 사용하여 ([~.,!?\"':;)(]) 제거
 def prepro_noise_canceling(data):
-    text = re.sub('[~.,:;!\?\\\\\"\(\)\[\]\']', '', data)
+    text = re.sub(CHANGE_FILTER, '', data)
     return text
 
 # Req 1-1-3. 텍스트 데이터에 토크나이징
 def tokenizing_data(data):
-    text=prepro_noise_canceling(data)
-    text=text.split(' ')
-    return text
+    words = []
+    for sentence in data:
+        sentence = re.sub(CHANGE_FILTER, "", sentence)
+        for word in sentence.split():
+            words.append(word)
+    return [word for word in words if word]
+
 
 # Req 1-2-1. 토큰화된 트레이닝 데이터를 인코더에 활용할 수 있도록 전 처리
 def enc_processing(value, dictionary):
@@ -228,7 +228,7 @@ def load_voc():
         # 데이터 파일의 존재 유무를 확인한다.
         if (os.path.exists(DEFINES.data_path)):
             data_df = pd.read_csv(DEFINES.data_path, encoding='utf-8')
-        
+
             # 판다스의 데이터 프레임을 통해
             # 질문과 답에 대한 열을 가져 온다.
             question, answer = list(data_df['Q']), list(data_df['A'])
@@ -240,21 +240,21 @@ def load_voc():
             # 통해서 구조가 없는 배열로 만든다.
             data.extend(question)
             data.extend(answer)
-            
-            # data를 토크나이즈하여 words에 저장한다. 
+
+            # data를 토크나이즈하여 words에 저장한다.
             words = data_tokenizer(data)
             # 중복되는 단어(토큰)를 제거
             words = list(set(words))
-            
+
             # 데이터 없는 내용중에 MARKER 추가
             words[:0] = MARKER
-        
-        # 사전 파일을 생성 
+
+        # 사전 파일을 생성
         # DEFINES.vocabulary_path에 words안에 저장된 가 단어(토큰)들을 한줄 씩 저장
         with open(DEFINES.vocabulary_path, 'w', encoding='utf-8') as voc_file:
             for word in words:
                 vocabulary_file.write(word + '\n')
-    
+
     # 사전 파일에서 단어(토큰)을 가져와 voc_list에 저장
     with open(DEFINES.vocabulary_path, 'r', encoding='utf-8') as voc_file:
         for line in voc_file:
@@ -286,8 +286,8 @@ def pred_next_string(value, dictionary):
             answer += word
             answer += " "
     return answer, is_finished
-    
-    
+
+
 def main(self):
     char2idx, idx2char, voc_length = load_voc()
 
