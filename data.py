@@ -226,48 +226,68 @@ def load_voc():
         # 데이터를 가지고 만들어야 한다.
         # 그래서 데이터가 존재 하면 사전을 만들기 위해서
         # 데이터 파일의 존재 유무를 확인한다.
-
-        data_df = None
-        # 판다스의 데이터 프레임을 통해
-        # 질문과 답에 대한 열을 가져 온다.
-        question, answer = None
-        data = []
-        # 질문과 답변을 extend을
-        # 통해서 구조가 없는 배열로 만든다.
-        data.extend(question)
-        data.extend(answer)
-
-        # data를 토크나이즈하여 words에 저장한다.
-        words = None
-        # 중복되는 단어(토큰)를 제거
-        words = None
-
-        # 데이터 없는 내용중에 MARKER 추가
-        words[:0] = MARKER
-
-        # 사전 파일을 생성
+        if (os.path.exists(DEFINES.data_path)):
+            data_df = pd.read_csv(DEFINES.data_path, encoding='utf-8')
+        
+            # 판다스의 데이터 프레임을 통해
+            # 질문과 답에 대한 열을 가져 온다.
+            question, answer = list(data_df['Q']), list(data_df['A'])
+            if DEFINES.tokenize_as_morph:  # 형태소에 따른 토크나이져 처리
+                question = prepro_like_morphlized(question)
+                answer = prepro_like_morphlized(answer)
+            data = []
+            # 질문과 답변을 extend을
+            # 통해서 구조가 없는 배열로 만든다.
+            data.extend(question)
+            data.extend(answer)
+            
+            # data를 토크나이즈하여 words에 저장한다. 
+            words = data_tokenizer(data)
+            # 중복되는 단어(토큰)를 제거
+            words = list(set(words))
+            
+            # 데이터 없는 내용중에 MARKER 추가
+            words[:0] = MARKER
+        
+        # 사전 파일을 생성 
         # DEFINES.vocabulary_path에 words안에 저장된 가 단어(토큰)들을 한줄 씩 저장
         with open(DEFINES.vocabulary_path, 'w', encoding='utf-8') as voc_file:
-
+            for word in words:
+                vocabulary_file.write(word + '\n')
+    
     # 사전 파일에서 단어(토큰)을 가져와 voc_list에 저장
     with open(DEFINES.vocabulary_path, 'r', encoding='utf-8') as voc_file:
-
+        for line in voc_file:
+            vocabulary_list.append(line.strip())
     # make() 함수를 사용하여 dictionary 형태의 char2idx, idx2char 저장
     char2idx, idx2char = make_voc(voc_list)
 
-    return None
+    return char2idx, idx2char, len(char2idx)
 
 # Req 1-3-2. 사전 리스트를 받아 인덱스와 토큰의 dictionary를 생성
 def make_voc(voc_list):
-
-    return None
+    char2idx = {char: idx for idx, char in enumerate(vocabulary_list)}
+    idx2char = {idx: char for idx, char in enumerate(vocabulary_list)}
+    return char2idx, idx2char
 
 # Req 1-3-3. 예측용 단어 인덱스를 문장으로 변환
 def pred_next_string(value, dictionary):
+    sentence_string = []
+    is_finished = False
+    for v in value:
+        sentence_string = [dictionary[index] for index in v['indexs']]
+    answer = ""
+    for word in sentence_string:
+        if word == END:
+            is_finished = True
+            break
 
-    return None
-
-
+        if word != PAD and word != END:
+            answer += word
+            answer += " "
+    return answer, is_finished
+    
+    
 def main(self):
     char2idx, idx2char, voc_length = load_voc()
 
