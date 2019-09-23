@@ -15,12 +15,12 @@ DATA_OUT_PATH = './data_out/'
 
 # Req. 1-5-1. bleu score 계산 함수
 def bleu_compute():
-    
+
     return None
 
 # Req. 1-5-2. rouge score 계산 함수
 def rouge_compute():
-    
+
     return None
 
 # Req. 1-5-3. main 함수 구성
@@ -30,10 +30,10 @@ def main(self):
     # 데이터를 통한 사전 구성 한다.
     char2idx, idx2char, vocabulary_length = data.load_voc()
     # 훈련 데이터와 테스트 데이터를 가져온다.
-    train_q, train_a, test_q, test_a = None
+    train_q, train_a, test_q, test_a = data.load_data()
 
     # 훈련셋 인코딩 만드는 부분
-    train_input_enc = None
+    train_input_enc = data.enc_processing() # value,dictionary 두가지 매개변수를 전달해야 함
     # 훈련셋 디코딩 입력 부분
     train_input_dec = None
     # 훈련셋 디코딩 출력 부분

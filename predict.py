@@ -17,7 +17,7 @@ if __name__ == '__main__':
         raise Exception("Don't call us. We'll call you")
 
     # 데이터를 통한 사전 구성 한다.
-    char2idx, idx2char, vocabulary_length = None
+    char2idx, idx2char, vocabulary_length = data.load_voc()
 
     # 테스트용 데이터 만드는 부분이다.
     # 인코딩 부분 만든다.
@@ -27,13 +27,13 @@ if __name__ == '__main__':
         input += " "
 
     print(input)
-    predic_input_enc = None
+    predic_input_enc = data.enc_processing([input], char2idx)
     # 학습 과정이 아니므로 디코딩 입력은
     # 존재하지 않는다.(구조를 맞추기 위해 넣는다.)
-    predic_output_dec = None
+    predic_output_dec = data.dec_output_processing([""], char2idx)
     # 학습 과정이 아니므로 디코딩 출력 부분도
     # 존재하지 않는다.(구조를 맞추기 위해 넣는다.)
-    predic_target_dec = None
+    predic_target_dec = data.dec_target_processing([""], char2idx)
 
     # 에스티메이터 구성한다.
     classifier = tf.estimator.Estimator(
@@ -52,11 +52,17 @@ if __name__ == '__main__':
             'xavier_initializer': DEFINES.xavier_initializer
         })
 
-
+        #TODO
+'''
+    for i in range(DEFINES.max_sequence_length):
+        if i > 0:
+            predic_output_dec, predic_output_decLength = data.dec_output_processing([answer], char2idx)
+            predic_target_dec = data.dec_target_processing([answer], char2idx)
+'''        
     # 예측을 하는 부분이다.
     predictions = classifier.predict(input_fn=lambda: data.eval_input_fn(predic_input_enc, predic_input_dec, predic_target_dec, 1))
 
-    answer, finished = None
+    answer, finished = data.pred_next_string(predictions, idx2char)
 
     # 예측한 값을 인지 할 수 있도록
     # 텍스트로 변경하는 부분이다.
