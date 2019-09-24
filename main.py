@@ -23,6 +23,7 @@ def rouge_compute():
 
     return None
 
+
 # Req. 1-5-3. main 함수 구성
 def main(self):
     data_out_path = os.path.join(os.getcwd(), DATA_OUT_PATH)
