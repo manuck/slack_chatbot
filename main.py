@@ -30,21 +30,21 @@ def main(self):
     # 데이터를 통한 사전 구성 한다.
     char2idx, idx2char, vocabulary_length = data.load_voc()
     # 훈련 데이터와 테스트 데이터를 가져온다.
-    train_q, train_a, test_q, test_a = None
+    train_q, train_a, test_q, test_a = data.load_data()
 
     # 훈련셋 인코딩 만드는 부분
-    train_input_enc = None
+    train_input_enc = data.enc_processing(train_q, char2idx)
     # 훈련셋 디코딩 입력 부분
-    train_input_dec = None
+    train_input_dec = data.dec_input_processing(train_a, char2idx)
     # 훈련셋 디코딩 출력 부분
-    train_target_dec = None
+    train_target_dec = data.dec_target_processing(train_a, char2idx)
 
     # 평가셋 인코딩 만드는 부분
-    eval_input_enc = None
+    eval_input_enc = data.enc_processing(test_q, char2idx)
     # 평가셋 인코딩 만드는 부분
-    eval_input_dec = None
+    eval_input_dec = data.dec_input_processing(test_a, char2idx)
     # 평가셋 인코딩 만드는 부분
-    eval_target_dec = None
+    eval_target_dec = data.dec_target_processing(test_a, char2idx)
 
     # 현재 경로'./'에 현재 경로 하부에
     # 체크 포인트를 저장한 디렉토리를 설정한다.
@@ -91,7 +91,7 @@ def main(self):
     # 학습 과정이 아니므로 디코딩 출력 부분도
     # 존재하지 않는다.(구조를 맞추기 위해 넣는다.)
     predic_target_dec = data.dec_target_processing([""], char2idx)
-
+;
     predictions = classifier.predict(
         input_fn=lambda: data.eval_input_fn(predic_input_enc, predic_input_dec, predic_target_dec, 1))
 
