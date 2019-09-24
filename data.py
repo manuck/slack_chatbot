@@ -83,41 +83,30 @@ def enc_processing(value, dictionary):
     return np.asarray(seq_input_index), seq_len
 
 # Req 1-2-2. 디코더에 필요한 데이터 전 처리
-def dec_input_processing(value, dictionary):
-
+def dec_output_processing(value, dictionary):
     # 인덱스 정보를 저장할 배열 초기화
-    seq_input_index = []
+    seq_output_index = []
     # 문장의 길이를 저장할 배열 초기화
-    seq_len = []
+    seq_length = []
     # 노이즈 캔슬
-    value = prepro_noise_canceling(value)
-
+    if DEFINES.tokenize_as_morph:
+        value = prepro_like_morphlized(value)
     for seq in value:
         # 하나의 seq에 index를 저장할 배열 초기화
-        seq_index =[]
-
-        for word in seq.split():
-            # 디코딩 입력의 처음에는 START가 와야 하므로 STD 값 추가
-            sequence_index = None
-            if dictionary.get(word) is not None:
-                # seq_index에 dictionary 안의 인덱스를 extend 한다
-            else:
-                # dictionary에 존재 하지 않는 다면 seq_index에 UNK 값을 extend 한다
-
+        seq = re.sub(CHANGE_FILTER, "", seq)
+        seq_index = []
+        # 디코딩 입력의 처음에는 START가 와야 하므로 STD 값 추가
+        seq_index = [dictionary[STD]] + [dictionary[word] for word in seq.split()]
         # 문장 제한 길이보다 길어질 경우 뒤에 토큰을 제거
-        if len(sequence_index) > DEFINES.max_sequence_length:
-            sequence_index = None
-
+        if len(seq_index) > DEFINES.max_sequence_length:
+            seq_index = seq_index[:DEFINES.max_sequence_length]
         # seq의 길이를 저장
-        seq_len.append(None)
-
+        seq_length.append(len(seq_index))
         # DEFINES.max_sequence_length 길이보다 작은 경우 PAD 값을 추가 (padding)
-        seq_index += None
-
+        seq_index += (DEFINES.max_sequence_length - len(sequ_index)) * [dictionary[PAD]]
         # 인덱스화 되어 있는 값은 seq_input_index에 추가
-        seq_input_index.append(None)
-
-    return None
+        seq_output_index.append(seq_index)
+    return np.asarray(seq_output_index), seq_length
 
 # Req 1-2-3. 디코더에 필요한 데이터 전 처리
 def dec_target_processing(value, dictionary):
@@ -133,22 +122,25 @@ def dec_target_processing(value, dictionary):
 
         # 하나의 seq에 index를 저장할 배열 초기화
         seq_index =[]
+        seq = re.sub(CHANGE_FILTER, "", seq)
 
         seq_index = [dictionary[word] for word in seq.split()]
         # 문장 제한 길이보다 길어질 경우 뒤에 토큰을 제거
         # END 토큰을 추가 (DEFINES.max_sequence_length 길이를 맞춰서 추가)
-        sequence_index = None
-
+        if len(seq_index) >= DEFINES.max_sequence_length:
+            seq_index = seq_index[:DEFINES.max_sequence_length - 1] + [dictionary[END]]
+        else:
+            seq_index += [dictionary[END]]
         # seq의 길이를 저장
-        seq_len.append(None)
+        seq_len.append(len(seq))
 
         # DEFINES.max_sequence_length 길이보다 작은 경우 PAD 값을 추가 (padding)
-        seq_index += None
+        seq_index += (DEFINES.max_sequence_length - len(seq_index)) * [dictionary[PAD]]
 
         # 인덱스화 되어 있는 값은 seq_input_index에 추가
-        seq_input_index.append(None)
+        seq_input_index.append(seq_index)
 
-    return None
+    return np.asarray(seq_index)
 
 # input과 output dictionary를 만드는 함수
 def in_out_dict(input, output, target):
@@ -163,7 +155,7 @@ def train_input_fn(train_input_enc, train_input_dec, train_target_dec, batch_siz
     # train_input_enc, train_output_dec, train_target_dec
     # 3개를 각각 한문장으로 나눈다.
     dataset = tf.data.Dataset.from_tensor_slices((train_input_enc, train_input_dec, train_target_dec))
-    # 전체 데이터를 썩는다.
+    # 전체 데이터를 섞는다.
     dataset = dataset.shuffle(buffer_size=len(train_input_enc))
     # 배치 인자 값이 없다면  에러를 발생 시킨다.
     assert batch_size is not None, "train batchSize must not be None"
