@@ -84,13 +84,13 @@ def main(self):
 
     # 테스트용 데이터 만드는 부분이다.
     # 인코딩 부분 만든다. 테스트용으로 ["가끔 궁금해"] 값을 넣어 형성된 대답과 비교를 한다.
-    predic_input_enc = None
+    predic_input_enc = data.enc_processing(["가끔 궁금해"], char2idx)
     # 학습 과정이 아니므로 디코딩 입력은
     # 존재하지 않는다.(구조를 맞추기 위해 넣는다.)
-    predic_input_dec = None
+    predic_input_dec = data.dec_output_processing([""], char2idx)
     # 학습 과정이 아니므로 디코딩 출력 부분도
     # 존재하지 않는다.(구조를 맞추기 위해 넣는다.)
-    predic_target_dec = None
+    predic_target_dec = data.dec_target_processing([""], char2idx)
 
     predictions = classifier.predict(
         input_fn=lambda: data.eval_input_fn(predic_input_enc, predic_input_dec, predic_target_dec, 1))
