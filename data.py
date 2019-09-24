@@ -36,13 +36,14 @@ def load_data():
 
 # Req 1-1-2. 텍스트 데이터에 정규화를 사용하여 ([~.,!?\"':;)(]) 제거
 def prepro_noise_canceling(data):
-
-    return None
+    text = re.sub('[~.,:;!\?\\\\\"\(\)\[\]\']', '', data)
+    return text
 
 # Req 1-1-3. 텍스트 데이터에 토크나이징
 def tokenizing_data(data):
-
-    return None
+    text=prepro_noise_canceling(data)
+    text=text.split(' ')
+    return text
 
 # Req 1-2-1. 토큰화된 트레이닝 데이터를 인코더에 활용할 수 있도록 전 처리
 def enc_processing(value, dictionary):
@@ -63,9 +64,11 @@ def enc_processing(value, dictionary):
             if dictionary.get(word) is not None:
                 seq_index.extend([dictionary[word]])
                 # seq_index에 dictionary 안의 인덱스를 extend 한다
+                seq_index.extend(dictionary.get(word))
             else:
                 seq_index.extend([dictionary[UNK]])
                 # dictionary에 존재 하지 않는 다면 UNK 값을 extend 한다
+                seq_index.extend(dictionary.get(UNK))
 
         # 문장 제한 길이보다 길어질 경우 뒤에 토큰을 제거
         if len(sequence_index) > DEFINES.max_sequence_length:
