@@ -14,14 +14,14 @@ from configs import DEFINES
 DATA_OUT_PATH = './data_out/'
 
 # Req. 1-5-1. bleu score 계산 함수
-def bleu_compute():
-
-    return None
+def bleu_compute(reference,candidate):
+    score = sentence_bleu(reference, candidate)
+    return score
 
 # Req. 1-5-2. rouge score 계산 함수
-def rouge_compute():
-
-    return None
+def rouge_compute(ref,hyp):
+    score = Rouge.get_scores(hyp, ref)[0]
+    return score
 
 
 # Req. 1-5-3. main 함수 구성
