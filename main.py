@@ -15,12 +15,12 @@ DATA_OUT_PATH = './data_out/'
 
 # Req. 1-5-1. bleu score 계산 함수
 def bleu_compute():
-    
+
     return None
 
 # Req. 1-5-2. rouge score 계산 함수
 def rouge_compute():
-    
+
     return None
 
 # Req. 1-5-3. main 함수 구성
