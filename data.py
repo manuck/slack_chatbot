@@ -234,7 +234,7 @@ def load_voc():
             data.extend(answer)
 
             # data를 토크나이즈하여 words에 저장한다.
-            words = data_tokenizer(data)
+            words = tokenizing_data(data)
             # 중복되는 단어(토큰)를 제거
             words = list(set(words))
 
