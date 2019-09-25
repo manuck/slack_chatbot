@@ -23,6 +23,7 @@ def rouge_compute(ref,hyp):
     score = Rouge.get_scores(hyp, ref)[0]
     return score
 
+
 # Req. 1-5-3. main 함수 구성
 def main(self):
     data_out_path = os.path.join(os.getcwd(), DATA_OUT_PATH)
@@ -33,18 +34,18 @@ def main(self):
     train_q, train_a, test_q, test_a = data.load_data()
 
     # 훈련셋 인코딩 만드는 부분
-    train_input_enc = data.enc_processing() # value,dictionary 두가지 매개변수를 전달해야 함
+    train_input_enc = data.enc_processing(train_q, char2idx)
     # 훈련셋 디코딩 입력 부분
-    train_input_dec = None
+    train_input_dec = data.dec_input_processing(train_a, char2idx)
     # 훈련셋 디코딩 출력 부분
-    train_target_dec = None
+    train_target_dec = data.dec_target_processing(train_a, char2idx)
 
     # 평가셋 인코딩 만드는 부분
-    eval_input_enc = None
+    eval_input_enc = data.enc_processing(test_q, char2idx)
     # 평가셋 인코딩 만드는 부분
-    eval_input_dec = None
+    eval_input_dec = data.dec_input_processing(test_a, char2idx)
     # 평가셋 인코딩 만드는 부분
-    eval_target_dec = None
+    eval_target_dec = data.dec_target_processing(test_a, char2idx)
 
     # 현재 경로'./'에 현재 경로 하부에
     # 체크 포인트를 저장한 디렉토리를 설정한다.
@@ -58,11 +59,11 @@ def main(self):
 
     # 에스티메이터 구성한다.
     classifier = tf.estimator.Estimator(
-        model_fn=ml.Model,  # 모델 등록한다.
+        model_fn=ml.model,  # 모델 등록한다.
         model_dir=DEFINES.check_point_path,  # 체크포인트 위치 등록한다.
         params={  # 모델 쪽으로 파라메터 전달한다.
             'embedding_size': DEFINES.embedding_size,
-            'model_hidden_size': DEFINES.model_hidden_size,  # 가중치 크기 설정한다.
+            'model_hidden_size': DEFINES.hidden_size,  # 가중치 크기 설정한다.
             'ffn_hidden_size': DEFINES.ffn_hidden_size,
             'attention_head_size': DEFINES.attention_head_size,
             'learning_rate': DEFINES.learning_rate,  # 학습율 설정한다.
