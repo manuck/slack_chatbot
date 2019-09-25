@@ -59,11 +59,11 @@ def main(self):
 
     # 에스티메이터 구성한다.
     classifier = tf.estimator.Estimator(
-        model_fn=ml.Model,  # 모델 등록한다.
+        model_fn=ml.model,  # 모델 등록한다.
         model_dir=DEFINES.check_point_path,  # 체크포인트 위치 등록한다.
         params={  # 모델 쪽으로 파라메터 전달한다.
             'embedding_size': DEFINES.embedding_size,
-            'model_hidden_size': DEFINES.model_hidden_size,  # 가중치 크기 설정한다.
+            'model_hidden_size': DEFINES.hidden_size,  # 가중치 크기 설정한다.
             'ffn_hidden_size': DEFINES.ffn_hidden_size,
             'attention_head_size': DEFINES.attention_head_size,
             'learning_rate': DEFINES.learning_rate,  # 학습율 설정한다.

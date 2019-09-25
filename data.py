@@ -32,7 +32,7 @@ def load_data():
 
 # Req 1-1-2. 텍스트 데이터에 정규화를 사용하여 ([~.,!?\"':;)(]) 제거
 def prepro_noise_canceling(data):
-    text = re.sub(CHANGE_FILTER, '', data)
+    text = re.sub(CHANGE_FILTER, "", str(data))
     return text
 
 # Req 1-1-3. 텍스트 데이터에 토크나이징
@@ -52,11 +52,9 @@ def enc_processing(value, dictionary):
     seq_input_index = []
     # 문장의 길이를 저장할 배열 초기화
     seq_len = []
-    # 노이즈 캔슬
-    value = prepro_noise_canceling(value)
 
     for seq in value:
-        seq = re.sub(CHANGE_FILTER, "", seq)
+        seq = prepro_noise_canceling(seq)
         # 하나의 seq에 index를 저장할 배열 초기화
         seq_index =[]
 
@@ -64,14 +62,12 @@ def enc_processing(value, dictionary):
             if dictionary.get(word) is not None:
                 seq_index.extend([dictionary[word]])
                 # seq_index에 dictionary 안의 인덱스를 extend 한다
-                seq_index.extend(dictionary.get(word))
             else:
                 seq_index.extend([dictionary[UNK]])
                 # dictionary에 존재 하지 않는 다면 UNK 값을 extend 한다
-                seq_index.extend(dictionary.get(UNK))
 
         # 문장 제한 길이보다 길어질 경우 뒤에 토큰을 제거
-        if len(sequence_index) > DEFINES.max_sequence_length:
+        if len(seq_index) > DEFINES.max_sequence_length:
             seq_index = seq_index[:DEFINES.max_sequence_length]
 
         # seq의 길이를 저장
@@ -86,17 +82,15 @@ def enc_processing(value, dictionary):
     return np.asarray(seq_input_index), seq_len
 
 # Req 1-2-2. 디코더에 필요한 데이터 전 처리
-def dec_output_processing(value, dictionary):
+def dec_input_processing(value, dictionary):
     # 인덱스 정보를 저장할 배열 초기화
     seq_output_index = []
     # 문장의 길이를 저장할 배열 초기화
     seq_length = []
-    # 노이즈 캔슬
-    if DEFINES.tokenize_as_morph:
-        value = prepro_like_morphlized(value)
+
     for seq in value:
         # 하나의 seq에 index를 저장할 배열 초기화
-        seq = re.sub(CHANGE_FILTER, "", seq)
+        seq = prepro_noise_canceling(seq)
         seq_index = []
         # 디코딩 입력의 처음에는 START가 와야 하므로 STD 값 추가
         seq_index = [dictionary[STD]] + [dictionary[word] for word in seq.split()]
@@ -106,7 +100,7 @@ def dec_output_processing(value, dictionary):
         # seq의 길이를 저장
         seq_length.append(len(seq_index))
         # DEFINES.max_sequence_length 길이보다 작은 경우 PAD 값을 추가 (padding)
-        seq_index += (DEFINES.max_sequence_length - len(sequ_index)) * [dictionary[PAD]]
+        seq_index += (DEFINES.max_sequence_length - len(seq_index)) * [dictionary[PAD]]
         # 인덱스화 되어 있는 값은 seq_input_index에 추가
         seq_output_index.append(seq_index)
     return np.asarray(seq_output_index), seq_length
@@ -118,14 +112,12 @@ def dec_target_processing(value, dictionary):
     seq_input_index = []
     # 문장의 길이를 저장할 배열 초기화
     seq_len = []
-    # 노이즈 캔슬
-    value = prepro_noise_canceling(value)
 
     for seq in value:
 
         # 하나의 seq에 index를 저장할 배열 초기화
         seq_index =[]
-        seq = re.sub(CHANGE_FILTER, "", seq)
+        seq = prepro_noise_canceling(seq)
 
         seq_index = [dictionary[word] for word in seq.split()]
         # 문장 제한 길이보다 길어질 경우 뒤에 토큰을 제거
@@ -224,9 +216,7 @@ def load_voc():
             # 판다스의 데이터 프레임을 통해
             # 질문과 답에 대한 열을 가져 온다.
             question, answer = list(data_df['Q']), list(data_df['A'])
-            if DEFINES.tokenize_as_morph:  # 형태소에 따른 토크나이져 처리
-                question = prepro_like_morphlized(question)
-                answer = prepro_like_morphlized(answer)
+
             data = []
             # 질문과 답변을 extend을
             # 통해서 구조가 없는 배열로 만든다.
@@ -234,7 +224,7 @@ def load_voc():
             data.extend(answer)
 
             # data를 토크나이즈하여 words에 저장한다.
-            words = data_tokenizer(data)
+            words = tokenizing_data(data)
             # 중복되는 단어(토큰)를 제거
             words = list(set(words))
 
@@ -245,12 +235,12 @@ def load_voc():
         # DEFINES.vocabulary_path에 words안에 저장된 가 단어(토큰)들을 한줄 씩 저장
         with open(DEFINES.vocabulary_path, 'w', encoding='utf-8') as voc_file:
             for word in words:
-                vocabulary_file.write(word + '\n')
+                voc_file.write(word + '\n')
 
     # 사전 파일에서 단어(토큰)을 가져와 voc_list에 저장
     with open(DEFINES.vocabulary_path, 'r', encoding='utf-8') as voc_file:
         for line in voc_file:
-            vocabulary_list.append(line.strip())
+            voc_list.append(line.strip())
     # make() 함수를 사용하여 dictionary 형태의 char2idx, idx2char 저장
     char2idx, idx2char = make_voc(voc_list)
 
@@ -258,8 +248,8 @@ def load_voc():
 
 # Req 1-3-2. 사전 리스트를 받아 인덱스와 토큰의 dictionary를 생성
 def make_voc(voc_list):
-    char2idx = {char: idx for idx, char in enumerate(vocabulary_list)}
-    idx2char = {idx: char for idx, char in enumerate(vocabulary_list)}
+    char2idx = {char: idx for idx, char in enumerate(voc_list)}
+    idx2char = {idx: char for idx, char in enumerate(voc_list)}
     return char2idx, idx2char
 
 # Req 1-3-3. 예측용 단어 인덱스를 문장으로 변환
