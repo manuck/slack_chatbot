@@ -79,7 +79,7 @@ def enc_processing(value, dictionary):
         # 인덱스화 되어 있는 값은 seq_input_index에 추가
         seq_input_index.append(seq_index)
 
-    return np.asarray(seq_input_index), seq_len
+    return np.asarray(seq_input_index)
 
 # Req 1-2-2. 디코더에 필요한 데이터 전 처리
 def dec_input_processing(value, dictionary):
@@ -103,7 +103,7 @@ def dec_input_processing(value, dictionary):
         seq_index += (DEFINES.max_sequence_length - len(seq_index)) * [dictionary[PAD]]
         # 인덱스화 되어 있는 값은 seq_input_index에 추가
         seq_output_index.append(seq_index)
-    return np.asarray(seq_output_index), seq_length
+    return np.asarray(seq_output_index)
 
 # Req 1-2-3. 디코더에 필요한 데이터 전 처리
 def dec_target_processing(value, dictionary):
@@ -135,7 +135,7 @@ def dec_target_processing(value, dictionary):
         # 인덱스화 되어 있는 값은 seq_input_index에 추가
         seq_input_index.append(seq_index)
 
-    return np.asarray(seq_index)
+    return np.asarray(seq_input_index)
 
 # input과 output dictionary를 만드는 함수
 def in_out_dict(input, output, target):

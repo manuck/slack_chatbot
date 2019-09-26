@@ -53,12 +53,12 @@ if __name__ == '__main__':
         })
 
         #TODO
-'''
+
     for i in range(DEFINES.max_sequence_length):
         if i > 0:
             predic_output_dec, predic_output_decLength = data.dec_output_processing([answer], char2idx)
             predic_target_dec = data.dec_target_processing([answer], char2idx)
-'''        
+
     # 예측을 하는 부분이다.
     predictions = classifier.predict(input_fn=lambda: data.eval_input_fn(predic_input_enc, predic_input_dec, predic_target_dec, 1))
 
