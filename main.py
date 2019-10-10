@@ -20,7 +20,8 @@ def bleu_compute(reference,candidate):
 
 # Req. 1-5-2. rouge score 계산 함수
 def rouge_compute(ref,hyp):
-    score = Rouge.get_scores(hyp, ref)[0]
+    r=Rouge();
+    score = r.get_scores(hyp, ref)[0]['rouge-1']
     return score
 
 
@@ -90,11 +91,11 @@ def main(self):
     predic_input_enc = data.enc_processing(["가끔 궁금해"], char2idx)
     # 학습 과정이 아니므로 디코딩 입력은
     # 존재하지 않는다.(구조를 맞추기 위해 넣는다.)
-    predic_input_dec = data.dec_output_processing([""], char2idx)
+    predic_input_dec = data.dec_input_processing(["가끔 궁금해"], char2idx)
     # 학습 과정이 아니므로 디코딩 출력 부분도
     # 존재하지 않는다.(구조를 맞추기 위해 넣는다.)
-    predic_target_dec = data.dec_target_processing([""], char2idx)
-;
+    predic_target_dec = data.dec_target_processing(["가끔 궁금해"], char2idx)
+
     predictions = classifier.predict(
         input_fn=lambda: data.eval_input_fn(predic_input_enc, predic_input_dec, predic_target_dec, 1))
 
