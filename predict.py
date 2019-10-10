@@ -9,22 +9,12 @@ from configs import DEFINES
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
-if __name__ == '__main__':
-    # tf.logging.set_verbosity(tf.logging.ERROR)
-    arg_length = len(sys.argv)
-
-    if (arg_length < 2):
-        raise Exception("Don't call us. We'll call you")
-
+def predict(input):
     # 데이터를 통한 사전 구성 한다.
     char2idx, idx2char, vocabulary_length = data.load_voc()
 
     # 테스트용 데이터 만드는 부분이다.
     # 인코딩 부분 만든다.
-    input = ""
-    for i in sys.argv[1:]:
-        input += i
-        input += " "
 
     print(input)
     predic_input_enc = data.enc_processing([input], char2idx)
@@ -71,3 +61,4 @@ if __name__ == '__main__':
     # 예측한 값을 인지 할 수 있도록
     # 텍스트로 변경하는 부분이다.
     print("answer: ", answer)
+    return answer

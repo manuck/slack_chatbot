@@ -194,7 +194,7 @@ def eval_input_fn(eval_input_enc, eval_input_dec, eval_target_dec, batch_size):
     dataset = dataset.repeat(1)
     # make_one_shot_iterator를 통해
     # 이터레이터를 만들어 준다.
-    iterator = dataset.make_one_shot_iterator()
+    iterator = tf.compat.v1.data.make_one_shot_iterator(dataset)
     # 이터레이터를 통해 다음 항목의
     # 텐서 개체를 넘겨준다.
     return iterator.get_next()

@@ -20,7 +20,8 @@ def bleu_compute(reference,candidate):
 
 # Req. 1-5-2. rouge score 계산 함수
 def rouge_compute(ref,hyp):
-    score = Rouge.get_scores(hyp, ref)
+    r=Rouge();
+    score = r.get_scores(hyp, ref)[0]['rouge-1']
     return score
 
 
